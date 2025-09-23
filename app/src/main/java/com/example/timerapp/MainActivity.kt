@@ -7,11 +7,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModel
+import com.example.timerapp.component.TimerDisplay
+import com.example.timerapp.homescreen.timerViewModel
 import com.example.timerapp.ui.theme.TimerAppTheme
+import java.util.Timer
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,11 +26,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TimerAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Surface (modifier = Modifier.fillMaxSize()) {
+                    val viewModel = timerViewModel()
+                    Timers(viewModel)
                 }
             }
         }
@@ -31,17 +36,22 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun Timers(timerViewModel: timerViewModel){
+    val hours by timerViewModel.hours.collectAsState()
+    val minutes by timerViewModel.minutes.collectAsState()
+    val seconds by timerViewModel.seconds.collectAsState()
+    val isRunning by timerViewModel.isRunning.collectAsState()
+    val remainingSeconds by timerViewModel.TotalSecond.collectAsState()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TimerAppTheme {
-        Greeting("Android")
-    }
+// In your Composable
+    TimerDisplay(
+        hour = hours,
+        minutes = minutes,
+        second = seconds,
+        remainingSeconds = remainingSeconds,
+        isRunning = isRunning,
+        onStartTimer = { timerViewModel.startTimer() },
+        onPauseTimer = { timerViewModel.pauseTimer() },
+        onResetTimer = { timerViewModel.resetTimer() }
+    )
 }
