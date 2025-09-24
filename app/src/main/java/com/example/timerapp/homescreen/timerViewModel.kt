@@ -4,18 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlin.div
-import kotlin.rem
 
 class timerViewModel : ViewModel(){
     private val _hours = MutableStateFlow<Int>(0)
     val hours: StateFlow<Int> = _hours.asStateFlow()
 
-    private val _minutes = MutableStateFlow<Int>(2)
+    private val _minutes = MutableStateFlow<Int>(0)
     val minutes: StateFlow<Int> = _minutes.asStateFlow()
 
     private val _seconds = MutableStateFlow<Int>(0)
@@ -25,20 +24,32 @@ class timerViewModel : ViewModel(){
     val isRunning: StateFlow<Boolean> = _isRunning.asStateFlow()
 
     private val _remainingTimeInSeconds  = MutableStateFlow(0L)
-    val TotalSecond : StateFlow<Long> = _remainingTimeInSeconds .asStateFlow()
+    val remainingTimeInSeconds: StateFlow<Long> = _remainingTimeInSeconds.asStateFlow()
+
+    private val _totalDuration = MutableStateFlow(0L)
+    val totalDuration : StateFlow<Long> = _totalDuration.asStateFlow()
+
 
 
     fun setHours(value: Int) {
-
-        _hours.value = value
+        val hoursInRange = value in 0..24
+        if (hoursInRange) {
+            _hours.value = value
+        }
     }
 
     fun setMinutes(value: Int) {
-        _minutes.value = value
+        val minutesInRange = value in 0 .. 60
+        if (minutesInRange) {
+            _minutes.value = value
+        }
     }
 
     fun setSeconds(value: Int) {
-        _seconds.value = value
+        val secondsInRange = value in 0..60
+        if (secondsInRange) {
+            _seconds.value = value
+        }
     }
 
     private var timerJob : Job? = null
@@ -50,22 +61,37 @@ class timerViewModel : ViewModel(){
         return ((h * 3600 + m * 60 + s).toLong())
     }
     fun startTimer(){
-        if (!_isRunning.value && _remainingTimeInSeconds .value == 0L){
-            _remainingTimeInSeconds .value = getTotalSeconds()
+        if (!_isRunning.value && _remainingTimeInSeconds.value == 0L) {
+            val total = getTotalSeconds()
+            _totalDuration.value = total
+            _remainingTimeInSeconds.value = total
         }
-        if (_remainingTimeInSeconds .value > 0){
+        if (_remainingTimeInSeconds.value > 0) {
             _isRunning.value = true
-        }
-        timerJob = viewModelScope.launch {
-            while (_isRunning.value && _remainingTimeInSeconds.value > 0) {
-                delay(1000L)
-                if (_isRunning.value){
-                    _remainingTimeInSeconds.value --
-                    updateTimeDisplay()
+            timerJob = viewModelScope.launch {
+                while (_isRunning.value && _remainingTimeInSeconds.value > 0) {
+                    delay(1000L)
+                    if (_isRunning.value) {
+                        _remainingTimeInSeconds.value--
+                        updateTimeDisplay()
+                    }
                 }
+                _isRunning.value = false
             }
-            _isRunning.value = false
         }
+    }
+
+    fun getRemainingTimeInSeconds() : Float {
+        val totalSecounds = _hours.value * 3600L + _minutes.value * 60L + _hours.value
+
+        if (totalSecounds == 0L) {
+            return 100f
+        }else{
+            val remainingSeconds  = _remainingTimeInSeconds.value
+            val elapsedSeconds  = totalSecounds - remainingSeconds
+            return (elapsedSeconds .toFloat() / totalSecounds) * 100
+        }
+
     }
 
     fun pauseTimer() {
@@ -77,8 +103,9 @@ class timerViewModel : ViewModel(){
         timerJob?.cancel()
         _remainingTimeInSeconds.value = 0
         _hours.value = 0
-        _minutes.value = 2
+        _minutes.value = 0
         _seconds.value = 0
+        updateTimeDisplay()
     }
     fun updateTimeDisplay() {
         val totalSeconds = _remainingTimeInSeconds.value

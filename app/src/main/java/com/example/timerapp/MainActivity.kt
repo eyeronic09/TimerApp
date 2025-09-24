@@ -17,15 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.view.ActionProvider
-import androidx.lifecycle.ViewModel
 import com.example.timerapp.component.TimerDisplay
 import com.example.timerapp.homescreen.timerViewModel
 import com.example.timerapp.ui.theme.TimerAppTheme
-import java.util.Timer
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +30,6 @@ class MainActivity : ComponentActivity() {
             TimerAppTheme {
                     val viewModel = timerViewModel()
                     Timers(viewModel)
-
             }
         }
     }
@@ -47,7 +41,10 @@ fun Timers(timerViewModel: timerViewModel) {
     val minutes by timerViewModel.minutes.collectAsState()
     val seconds by timerViewModel.seconds.collectAsState()
     val isRunning by timerViewModel.isRunning.collectAsState()
-    val remainingSeconds by timerViewModel.TotalSecond.collectAsState()
+    val remainingSeconds by timerViewModel.remainingTimeInSeconds.collectAsState()
+    val totalDuration by timerViewModel.totalDuration.collectAsState()
+
+
 
     Scaffold(
         topBar = {
@@ -69,12 +66,16 @@ fun Timers(timerViewModel: timerViewModel) {
                 hour = hours,
                 minutes = minutes,
                 second = seconds,
-                remainingSeconds = remainingSeconds,
-                isRunning = isRunning,
                 onStartTimer = { timerViewModel.startTimer() },
                 onPauseTimer = { timerViewModel.pauseTimer() },
                 onResetTimer = { timerViewModel.resetTimer() },
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
+                onHourChange = { timerViewModel.setHours(it) },
+                onSecondChange = { timerViewModel.setSeconds(it) },
+                onMinutesChange = { timerViewModel.setMinutes(it) },
+                isRunning = isRunning,
+                remainingSeconds = remainingSeconds,
+                totalDuration = totalDuration
             )
         }
     }
