@@ -6,14 +6,21 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.core.view.ActionProvider
 import androidx.lifecycle.ViewModel
 import com.example.timerapp.component.TimerDisplay
 import com.example.timerapp.homescreen.timerViewModel
@@ -26,32 +33,49 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TimerAppTheme {
-                Surface (modifier = Modifier.fillMaxSize()) {
                     val viewModel = timerViewModel()
                     Timers(viewModel)
-                }
+
             }
         }
     }
 }
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Timers(timerViewModel: timerViewModel){
+fun Timers(timerViewModel: timerViewModel) {
     val hours by timerViewModel.hours.collectAsState()
     val minutes by timerViewModel.minutes.collectAsState()
     val seconds by timerViewModel.seconds.collectAsState()
     val isRunning by timerViewModel.isRunning.collectAsState()
     val remainingSeconds by timerViewModel.TotalSecond.collectAsState()
 
-// In your Composable
-    TimerDisplay(
-        hour = hours,
-        minutes = minutes,
-        second = seconds,
-        remainingSeconds = remainingSeconds,
-        isRunning = isRunning,
-        onStartTimer = { timerViewModel.startTimer() },
-        onPauseTimer = { timerViewModel.pauseTimer() },
-        onResetTimer = { timerViewModel.resetTimer() }
-    )
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Timer App") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            )
+        }
+    ) { innerPadding ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            TimerDisplay(
+                hour = hours,
+                minutes = minutes,
+                second = seconds,
+                remainingSeconds = remainingSeconds,
+                isRunning = isRunning,
+                onStartTimer = { timerViewModel.startTimer() },
+                onPauseTimer = { timerViewModel.pauseTimer() },
+                onResetTimer = { timerViewModel.resetTimer() },
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+    }
 }

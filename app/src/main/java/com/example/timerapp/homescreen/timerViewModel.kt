@@ -77,7 +77,7 @@ class timerViewModel : ViewModel(){
         timerJob?.cancel()
         _remainingTimeInSeconds.value = 0
         _hours.value = 0
-        _minutes.value = 0
+        _minutes.value = 2
         _seconds.value = 0
     }
     fun updateTimeDisplay() {
