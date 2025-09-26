@@ -18,8 +18,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.timerapp.component.TimerDisplay
+import com.example.timerapp.homescreen.component.TimerDisplay
 import com.example.timerapp.homescreen.timerViewModel
+import com.example.timerapp.pomodorscreen.PomodoroVM
+import com.example.timerapp.pomodorscreen.presentation_layer.pomodoro
 import com.example.timerapp.ui.theme.TimerAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -28,8 +30,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TimerAppTheme {
-                    val viewModel = timerViewModel()
-                    Timers(viewModel)
+                    val viewModel = PomodoroVM()
+                    pomodoro(viewModel)
             }
         }
     }

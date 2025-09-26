@@ -41,6 +41,7 @@ android {
 
 dependencies {
     implementation("androidx.compose.material3:material3:1.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
 
 
     implementation(libs.androidx.core.ktx)
